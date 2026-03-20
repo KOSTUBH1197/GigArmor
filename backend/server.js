@@ -7,6 +7,8 @@ const winston = require('winston');
 require('dotenv').config();
 
 const app = express();
+
+// 🔥 IMPORTANT (Render fix)
 app.set('trust proxy', 1);
 
 // Logger setup
@@ -25,30 +27,20 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-// Middleware
+// 🔥 MIDDLEWARE (ORDER IMPORTANT)
 app.use(helmet());
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://gigarmor-frontend.onrender.com"
-];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
+// ✅ SIMPLE + WORKING CORS (NO OVERCOMPLICATION)
+app.use(cors());
+app.options('*', cors()); // 🔥 FIXES PREFLIGHT
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use(limiter);
 
@@ -78,7 +70,7 @@ app.get("/api", (req, res) => {
 // Start parametric trigger service
 require('./services/triggerService');
 
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
   logger.error(err.stack);
   res.status(500).send('Something broke!');
