@@ -1,21 +1,17 @@
-console.log("authMiddleware:", authMiddleware);
-console.log("getProfile:", workersController.getProfile);
 const express = require('express');
 const router = express.Router();
 
-const authMiddleware = require('../middleware/auth');
+// 👇 IMPORTANT CHANGE
+const { auth } = require('../middleware/auth');
+
 const workersController = require('../controllers/workersController');
 
-// DEBUG (temporary)
-console.log("authMiddleware:", typeof authMiddleware);
-console.log("getProfile:", typeof workersController.getProfile);
-
 // Routes
-router.get('/profile', authMiddleware, workersController.getProfile);
-router.put('/profile', authMiddleware, workersController.updateProfile);
-router.post('/calculate-risk', authMiddleware, workersController.calculateRisk);
-router.post('/purchase-policy', authMiddleware, workersController.purchasePolicy);
-router.get('/policies', authMiddleware, workersController.getPolicies);
-router.get('/claims', authMiddleware, workersController.getClaims);
+router.get('/profile', auth, workersController.getProfile);
+router.put('/profile', auth, workersController.updateProfile);
+router.post('/calculate-risk', auth, workersController.calculateRisk);
+router.post('/purchase-policy', auth, workersController.purchasePolicy);
+router.get('/policies', auth, workersController.getPolicies);
+router.get('/claims', auth, workersController.getClaims);
 
 module.exports = router;
