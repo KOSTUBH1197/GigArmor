@@ -14,7 +14,9 @@ router.get('/profile', workersController.getProfile);
 router.put('/profile', workersController.updateProfile);
 
 // Calculate risk score and premium
-router.post('/calculate-risk', workersController.calculateRisk);
+const authMiddleware = require('../middleware/auth');
+
+router.post('/calculate-risk', authMiddleware, workersController.calculateRisk);
 
 // Purchase policy
 router.post('/purchase-policy', workersController.purchasePolicy);

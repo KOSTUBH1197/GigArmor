@@ -50,64 +50,54 @@ const workersController = {
   },
 
   // Calculate risk score and premium
+  
+
+
+
   calculateRisk: async (req, res) => {
     try {
+      // 🔥 Step 1: JWT se userId nikalo
+      const userId = req.user.userId;
 
-      // 🔥 TEMP USER (no MongoDB)
-      const user = {
-        location: { city: "Delhi", lat: 28.6, lng: 77.2 },
-        deliveryPlatform: "Swiggy",
-        averageWeeklyIncome: 5000
-      };
+      // 🔥 Step 2: DB se full user fetch karo
+      const user = await User.findById(userId);
 
-      let riskScore, weeklyPremium, coverageAmount, riskFactors;
-
-      try {
-        const aiResponse = await axios.post(
-          `${process.env.AI_SERVICE_URL}/calculate-risk`,
-          {
-            location: user.location,
-            deliveryPlatform: user.deliveryPlatform,
-            averageWeeklyIncome: user.averageWeeklyIncome,
-          },
-          { timeout: 10000 }
-        );
-
-        ({ riskScore, weeklyPremium, coverageAmount, riskFactors } = aiResponse.data);
-
-        console.log("AI Response:", aiResponse.data);
-
-      } catch (err) {
-        console.log("⚠️ AI failed, using fallback");
-
-        // Fallback logic
-        riskScore = 30;
-        weeklyPremium = 60;
-        coverageAmount = user.averageWeeklyIncome * 0.6;
-        riskFactors = {};
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
 
-      // 🔥 Response
-      res.json({
-        riskScore,
-        weeklyPremium,
-        coverageAmount,
-        riskFactors
-      });
+      console.log("FULL USER:", user);
+
+      // 🔥 Step 3: AI service call
+      const aiResponse = await axios.post(
+        `${process.env.AI_SERVICE_URL}/calculate-risk`,
+        {
+          location: {
+            latitude: Number(user.location?.latitude) || 19.0760,
+            longitude: Number(user.location?.longitude) || 72.8777,
+          },
+          deliveryPlatform: user.deliveryPlatform,
+          averageWeeklyIncome: user.averageWeeklyIncome,
+        }
+      );
+
+      // 🔥 Step 4: response bhejo frontend ko
+      res.json(aiResponse.data);
 
     } catch (error) {
-      console.error('Risk calculation error:', error);
-      res.status(500).json({ message: 'Server error during risk calculation' });
+      console.error("Risk error:", error.message);
+      res.status(500).json({ message: "Risk calculation failed" });
     }
   },
-
+    
   // Purchase policy
   purchasePolicy: async (req, res) => {
     try {
       const { weeklyPremium, coverageAmount } = req.body;
 
       if (!weeklyPremium || !coverageAmount) {
-        return res.status(400).json({ message: 'Weekly premium and coverage amount required' });
+        return res.
+cstatus(400).json({ message: 'Weekly premium and coverage amount required' });
       }
 
       const user = await User.findById(req.user.userId);
