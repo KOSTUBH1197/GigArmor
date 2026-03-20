@@ -1,21 +1,19 @@
 const express = require('express');
-const workersController = require('../controllers/workersController');
-const { auth } = require('../middleware/auth');
-
 const router = express.Router();
 
-// All routes require authentication
-router.use(auth);
+const authMiddleware = require('../middleware/auth');
+const workersController = require('../controllers/workersController');
+
+// ❌ REMOVE THIS LINE
+// router.use(auth);
 
 // Get worker profile
 router.get('/profile', authMiddleware, workersController.getProfile);
 
 // Update worker profile
-router.put('/profile', workersController.updateProfile);
+router.put('/profile', authMiddleware, workersController.updateProfile);
 
 // Calculate risk score and premium
-const authMiddleware = require('../middleware/auth');
-
 router.post('/calculate-risk', authMiddleware, workersController.calculateRisk);
 
 // Purchase policy
