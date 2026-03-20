@@ -81,7 +81,7 @@ const authController = {
       console.error('Registration error:', error);
       res.status(500).json({ message: 'Server error during registration' });
     }
-  }
+  },
   // Login worker/admin
   login: async (req, res) => {
     try {
