@@ -25,9 +25,9 @@ export default function WorkerDashboard({ user, onLogout }) {
       const config = { headers: { Authorization: `Bearer ${token}` } }
 
       const [profileRes, policiesRes, claimsRes] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/profile`, config)
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/policies`, config)
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/claims`, config)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/profile`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/policies`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/claims`, config),
       ])
 
       setProfile(profileRes.data)
