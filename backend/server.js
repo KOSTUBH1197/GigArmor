@@ -7,6 +7,7 @@ const winston = require('winston');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Logger setup
 const logger = winston.createLogger({
