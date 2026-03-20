@@ -96,8 +96,7 @@ const workersController = {
       const { weeklyPremium, coverageAmount } = req.body;
 
       if (!weeklyPremium || !coverageAmount) {
-        return res.
-cstatus(400).json({ message: 'Weekly premium and coverage amount required' });
+        return res.status(400).json({ message: 'Weekly premium and coverage amount required' });
       }
 
       const user = await User.findById(req.user.userId);
