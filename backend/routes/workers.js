@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(auth);
 
 // Get worker profile
-router.get('/profile', workersController.getProfile);
+router.get('/profile', authMiddleware, workersController.getProfile);
 
 // Update worker profile
 router.put('/profile', workersController.updateProfile);
@@ -19,12 +19,12 @@ const authMiddleware = require('../middleware/auth');
 router.post('/calculate-risk', authMiddleware, workersController.calculateRisk);
 
 // Purchase policy
-router.post('/purchase-policy', workersController.purchasePolicy);
+router.post('/purchase-policy', authMiddleware, workersController.purchasePolicy);
 
 // Get worker policies
-router.get('/policies', workersController.getPolicies);
+router.get('/policies', authMiddleware, workersController.getPolicies);
 
 // Get worker claims
-router.get('/claims', workersController.getClaims);
+router.get('/claims', authMiddleware, workersController.getClaims);
 
 module.exports = router;
