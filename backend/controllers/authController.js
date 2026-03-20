@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const axios = require("axios");
 const authController = {
   // Register worker
   // file ke top pe hona chahiye (IMPORTANT)
-  const axios = require("axios");
+  
 
   register: async (req, res) => {
     try {
