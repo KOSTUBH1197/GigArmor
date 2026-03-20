@@ -1,3 +1,5 @@
+console.log("authMiddleware:", authMiddleware);
+console.log("getProfile:", workersController.getProfile);
 const express = require('express');
 const router = express.Router();
 
