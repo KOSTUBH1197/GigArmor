@@ -25,9 +25,9 @@ export default function WorkerDashboard({ user, onLogout }) {
       const config = { headers: { Authorization: `Bearer ${token}` } }
 
       const [profileRes, policiesRes, claimsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/workers/profile', config),
-        axios.get('http://localhost:5000/api/workers/policies', config),
-        axios.get('http://localhost:5000/api/workers/claims', config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/profile`, config)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/policies`, config)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/claims`, config)
       ])
 
       setProfile(profileRes.data)
@@ -48,7 +48,7 @@ export default function WorkerDashboard({ user, onLogout }) {
     setCalculatingRisk(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.post('http://localhost:5000/api/workers/calculate-risk', {}, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/calculate-risk`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setRiskData(response.data)
@@ -65,7 +65,7 @@ export default function WorkerDashboard({ user, onLogout }) {
     setPurchasing(true)
     try {
       const token = localStorage.getItem('token')
-      await axios.post('http://localhost:5000/api/workers/purchase-policy', {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/workers/purchase-policy`, {
         weeklyPremium: riskData.weeklyPremium,
         coverageAmount: riskData.coverageAmount,
       }, {
