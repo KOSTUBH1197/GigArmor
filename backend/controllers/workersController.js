@@ -66,20 +66,37 @@ const workersController = {
         return res.status(404).json({ message: "User not found" });
       }
 
-      console.log("FULL USER:", user);
+      let aiResponse;
 
-      // 🔥 Step 3: AI service call
-      const aiResponse = await axios.post(
-        `${process.env.AI_SERVICE_URL}/calculate-risk`,
-        {
-          location: {
-            latitude: Number(user.location?.latitude) || 19.0760,
-            longitude: Number(user.location?.longitude) || 72.8777,
-          },
-          deliveryPlatform: user.deliveryPlatform,
-          averageWeeklyIncome: user.averageWeeklyIncome,
-        }
-      );
+  try {
+    aiResponse = await axios.post(
+      `${process.env.AI_SERVICE_URL}/calculate-risk`,
+      {
+        location: {
+          latitude: Number(user.location?.latitude),
+          longitude: Number(user.location?.longitude),
+        },
+        deliveryPlatform: user.deliveryPlatform,
+        averageWeeklyIncome: user.averageWeeklyIncome,
+      },
+      { timeout: 30000 } // 🔥 IMPORTANT
+    );
+  } catch (err) {
+    console.log("Retrying AI...");
+
+    aiResponse = await axios.post(
+      `${process.env.AI_SERVICE_URL}/calculate-risk`,
+      {
+        location: {
+          latitude: Number(user.location?.latitude),
+          longitude: Number(user.location?.longitude),
+        },
+        deliveryPlatform: user.deliveryPlatform,
+        averageWeeklyIncome: user.averageWeeklyIncome,
+      },
+      { timeout: 30000 }
+    );
+  }
 
       // 🔥 Step 4: response bhejo frontend ko
       res.json(aiResponse.data);
