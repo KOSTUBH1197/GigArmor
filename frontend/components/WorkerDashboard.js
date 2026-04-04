@@ -285,7 +285,7 @@ export default function WorkerDashboard({ user, onLogout }) {
                 <Shield className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900 leading-none">GigArmor</h1>
+                <h1 className="text-lg font-bold text-slate-900 leading-none">FlexiGuard</h1>
                 <p className="text-xs text-slate-400">Worker Portal</p>
               </div>
             </div>

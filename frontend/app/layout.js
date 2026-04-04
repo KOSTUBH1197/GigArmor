@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'GigArmor - Parametric Insurance for Delivery Workers',
+  title: 'FlexiGuard - Parametric Insurance for Delivery Workers',
   description: 'Protect your income with AI-powered parametric insurance',
 }
 

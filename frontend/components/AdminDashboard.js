@@ -198,7 +198,7 @@ export default function AdminDashboard({ user, onLogout }) {
               <div className="p-2 bg-primary-100 rounded-lg">
                 <Shield className="h-6 w-6 text-primary-600" />
               </div>
-              <h1 className="text-xl font-bold text-surface-900 hidden sm:block">GigArmor Admin</h1>
+              <h1 className="text-xl font-bold text-surface-900 hidden sm:block">FlexiGuard Admin</h1>
             </div>
 
             {/* Search Bar */}

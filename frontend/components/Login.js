@@ -45,7 +45,7 @@ export default function Login({ onSwitchToRegister, onLogin }) {
           <Shield className="w-8 h-8 text-primary-600" />
         </div>
         <h2 className="text-2xl font-bold text-surface-900">Welcome Back</h2>
-        <p className="text-surface-500 mt-1">Sign in to your GigArmor account</p>
+        <p className="text-surface-500 mt-1">Sign in to your FlexiGuard account</p>
       </div>
 
       {/* Error Alert */}

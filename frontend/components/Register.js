@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { 
-  User, Mail, Lock, Phone, MapPin, DollarSign, 
+  User, Mail, Lock, Phone, MapPin, IndianRupee, 
   Globe, Eye, EyeOff, AlertCircle, Loader2, 
   CheckCircle2, ChevronDown, ChevronUp 
 } from 'lucide-react'
@@ -106,7 +106,7 @@ export default function Register({ onSwitchToLogin, onRegister }) {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-100 mb-4">
           <User className="w-8 h-8 text-brand-600" />
         </div>
-        <h2 className="text-2xl font-bold text-surface-900">Join GigArmor</h2>
+        <h2 className="text-2xl font-bold text-surface-900">Join FlexiGuard</h2>
         <p className="text-surface-500 mt-1">Create your worker account</p>
       </div>
 
@@ -259,7 +259,7 @@ export default function Register({ onSwitchToLogin, onRegister }) {
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <DollarSign className="h-5 w-5 text-surface-400" />
+              <IndianRupee className="h-5 w-5 text-surface-400" />
             </div>
             <input
               id="averageWeeklyIncome"
@@ -302,7 +302,7 @@ export default function Register({ onSwitchToLogin, onRegister }) {
                 className="btn-secondary w-full flex items-center justify-center gap-2"
               >
                 <MapPin className="w-4 h-4" />
-                Get Current Location
+                Auto-Detect Location
               </button>
 
               {/* Address Field */}
@@ -329,8 +329,9 @@ export default function Register({ onSwitchToLogin, onRegister }) {
                   <input
                     type="text"
                     name="location.latitude"
-                    placeholder="12.9716"
-                    className="input-field"
+                    placeholder="Auto-detected"
+                    readOnly
+                    className="input-field bg-slate-100 cursor-not-allowed select-none"
                     value={formData.location.latitude}
                     onChange={handleChange}
                   />
@@ -342,8 +343,9 @@ export default function Register({ onSwitchToLogin, onRegister }) {
                   <input
                     type="text"
                     name="location.longitude"
-                    placeholder="77.5946"
-                    className="input-field"
+                    placeholder="Auto-detected"
+                    readOnly
+                    className="input-field bg-slate-100 cursor-not-allowed select-none"
                     value={formData.location.longitude}
                     onChange={handleChange}
                   />

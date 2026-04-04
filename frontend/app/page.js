@@ -57,7 +57,7 @@ export default function Home() {
             <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
               <Shield className="w-10 h-10 text-brand-400" />
             </div>
-            <span className="text-3xl font-bold tracking-tight">GigArmor</span>
+            <span className="text-3xl font-bold tracking-tight">FlexiGuard</span>
           </div>
           
           <h1 className="text-5xl font-bold mb-6 leading-tight animate-slide-up">
@@ -91,16 +91,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="mt-12 pt-6 border-t border-white/10 animate-fade-in animate-delay-300">
-            <p className="text-sm text-primary-200 mb-3">Trusted by 10,000+ delivery partners</p>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              ))}
-              <span className="ml-2 text-sm text-primary-100">4.9/5 rating</span>
-            </div>
-          </div>
+
         </div>
 
         {/* Auth Card */}
@@ -111,7 +102,7 @@ export default function Home() {
               <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
                 <Shield className="w-8 h-8 text-brand-400" />
               </div>
-              <span className="text-2xl font-bold text-white">GigArmor</span>
+              <span className="text-2xl font-bold text-white">FlexiGuard</span>
             </div>
             <p className="text-primary-100">Insurance for delivery workers</p>
           </div>
@@ -135,10 +126,6 @@ export default function Home() {
             <p className="text-sm">
               AI-powered protection for gig workers
             </p>
-            <div className="flex items-center justify-center gap-1 mt-2">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm text-primary-100">4.9/5 from 10,000+ users</span>
-            </div>
           </div>
         </div>
       </div>
@@ -146,7 +133,7 @@ export default function Home() {
       {/* Footer */}
       <div className="absolute bottom-4 left-0 right-0 text-center">
         <p className="text-xs text-primary-300/60">
-          © 2024 GigArmor. Secured with enterprise-grade encryption.
+          © 2024 FlexiGuard. Secured with enterprise-grade encryption.
         </p>
       </div>
     </div>
