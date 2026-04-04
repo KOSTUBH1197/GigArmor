@@ -56,54 +56,63 @@ const workersController = {
 
   calculateRisk: async (req, res) => {
     try {
-      // 🔥 Step 1: JWT se userId nikalo
       const userId = req.user.userId;
-
-      // 🔥 Step 2: DB se full user fetch karo
       const user = await User.findById(userId);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: 'User not found' });
       }
 
-      let aiResponse;
-
-  try {
-    aiResponse = await axios.post(
-      `${process.env.AI_SERVICE_URL}/calculate-risk`,
-      {
+      const requestPayload = {
         location: {
-          latitude: Number(user.location?.latitude),
-          longitude: Number(user.location?.longitude),
+          latitude: Number(user.location?.latitude) || 19.076,
+          longitude: Number(user.location?.longitude) || 72.877,
         },
-        deliveryPlatform: user.deliveryPlatform,
-        averageWeeklyIncome: user.averageWeeklyIncome,
-      },
-      { timeout: 30000 } // 🔥 IMPORTANT
-    );
-  } catch (err) {
-    console.log("Retrying AI...");
+        deliveryPlatform: user.deliveryPlatform || 'other',
+        averageWeeklyIncome: user.averageWeeklyIncome || 1500,
+      };
 
-    aiResponse = await axios.post(
-      `${process.env.AI_SERVICE_URL}/calculate-risk`,
-      {
-        location: {
-          latitude: Number(user.location?.latitude),
-          longitude: Number(user.location?.longitude),
-        },
-        deliveryPlatform: user.deliveryPlatform,
-        averageWeeklyIncome: user.averageWeeklyIncome,
-      },
-      { timeout: 30000 }
-    );
-  }
+      let riskData = null;
+      let usedFallback = false;
 
-      // 🔥 Step 4: response bhejo frontend ko
-      res.json(aiResponse.data);
+      // --- Attempt 1 ---
+      try {
+        const res1 = await axios.post(
+          `${process.env.AI_SERVICE_URL}/calculate-risk`,
+          requestPayload,
+          { timeout: 5000 }
+        );
+        riskData = res1.data;
+      } catch (err1) {
+        console.warn('[Risk] Attempt 1 failed:', err1.message, '— retrying...');
 
+        // --- Attempt 2 ---
+        try {
+          const res2 = await axios.post(
+            `${process.env.AI_SERVICE_URL}/calculate-risk`,
+            requestPayload,
+            { timeout: 5000 }
+          );
+          riskData = res2.data;
+        } catch (err2) {
+          console.warn('[Risk] Attempt 2 failed:', err2.message, '— using fallback model');
+          // --- Fallback: rule-based model ---
+          const { calculateFallbackRisk } = require('../services/riskFallback');
+          riskData = calculateFallbackRisk(requestPayload);
+          usedFallback = true;
+        }
+      }
+
+      // Persist risk score to user profile
+      await User.findByIdAndUpdate(userId, {
+        riskScore: riskData.riskScore,
+        updatedAt: new Date(),
+      });
+
+      return res.json({ ...riskData, usedFallback });
     } catch (error) {
-      console.error("Risk error:", error.message);
-      res.status(500).json({ message: "Risk calculation failed" });
+      console.error('[Risk] Unhandled error:', error.message);
+      res.status(500).json({ message: 'Risk calculation failed. Please try again.' });
     }
   },
     

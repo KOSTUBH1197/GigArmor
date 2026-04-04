@@ -27,6 +27,16 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
+// Request logger middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info(`${req.method} ${req.path} → ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
+
 // 🔥 MIDDLEWARE (ORDER IMPORTANT)
 app.use(helmet());
 
@@ -60,20 +70,32 @@ app.use('/api/claims', require('./routes/claims'));
 app.use('/api/admin', require('./routes/admin'));
 
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+  res.json({ message: "GigArmor API is running 🚀", version: "2.0" });
 });
 
 app.get("/api", (req, res) => {
-  res.json({ message: "API is working ✅" });
+  res.json({
+    message: "API is working ✅",
+    endpoints: ['/api/auth', '/api/workers', '/api/policies', '/api/claims', '/api/admin'],
+  });
 });
 
 // Start parametric trigger service
 require('./services/triggerService');
 
-// Error handling
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Cannot ${req.method} ${req.path}` });
+});
+
+// Global error handler — returns JSON, not plain text
 app.use((err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(500).send('Something broke!');
+  logger.error({ message: err.message, stack: err.stack, path: req.path });
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+  });
 });
 
 const PORT = process.env.PORT || 5000;

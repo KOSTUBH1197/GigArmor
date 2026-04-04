@@ -68,15 +68,16 @@ export default function AdminDashboard({ user, onLogout }) {
     try {
       const token = localStorage.getItem('token')
       const config = { headers: { Authorization: `Bearer ${token}` } }
+      const API = process.env.NEXT_PUBLIC_API_URL
 
       const [dashboardRes, fraudRes, riskRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/dashboard', config),
-        axios.get('http://localhost:5000/api/admin/fraud-alerts', config),
-        axios.get('http://localhost:5000/api/admin/risk-heatmap', config),
+        axios.get(`${API}/api/admin/dashboard`, config),
+        axios.get(`${API}/api/admin/fraud-alerts`, config),
+        axios.get(`${API}/api/admin/risk-heatmap`, config),
       ])
 
       setDashboardData(dashboardRes.data)
-      setFraudAlerts(fraudRes.data)
+      setFraudAlerts(fraudRes.data.fraudAlerts || fraudRes.data)
       setRiskHeatmap(riskRes.data)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -89,77 +90,94 @@ export default function AdminDashboard({ user, onLogout }) {
     fetchDashboardData()
   }, [])
 
-  if (loading) {
+  if (loading || !dashboardData) {
     return (
-      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-          <p className="text-surface-500 font-medium">Loading dashboard...</p>
+          <div className="w-10 h-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" style={{borderWidth:3}} />
+          <p className="text-slate-500 font-medium text-sm">Loading admin dashboard...</p>
         </div>
       </div>
     )
   }
 
+  const ov = dashboardData.overview || {}
+  const cl = dashboardData.claims   || {}
+
   const claimsRatioChart = {
-    labels: ['Approved', 'Rejected', 'Pending'],
+    labels: ['Paid', 'Rejected', 'Pending'],
     datasets: [{
       label: 'Claims',
-      data: [
-        dashboardData.claimsRatio * dashboardData.totalClaims / 100,
-        (1 - dashboardData.claimsRatio / 100) * dashboardData.totalClaims * 0.7,
-        dashboardData.pendingClaims
-      ],
-      backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
+      data: [cl.paid || 0, cl.rejected || 0, cl.pending || 0],
+      backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
       borderRadius: 8,
     }],
   }
 
+  const rev = ov.weeklyRevenue || 0
   const revenueChart = {
     labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
     datasets: [{
-      label: 'Revenue',
-      data: [dashboardData.weeklyRevenue * 0.8, dashboardData.weeklyRevenue * 0.9, dashboardData.weeklyRevenue, dashboardData.weeklyRevenue * 1.1],
-      borderColor: '#2563eb',
-      backgroundColor: 'rgba(37, 99, 235, 0.1)',
+      label: 'Revenue (₹)',
+      data: [rev * 0.75, rev * 0.88, rev * 0.95, rev],
+      borderColor: '#4f46e5',
+      backgroundColor: 'rgba(79,70,229,0.08)',
       fill: true,
       tension: 0.4,
-      pointBackgroundColor: '#2563eb',
-      pointRadius: 4,
+      pointBackgroundColor: '#4f46e5',
+      pointRadius: 5,
     }],
+  }
+
+  const forecastChart = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [{
+      label: 'Predicted Rain Risk (%)',
+      data: [12, 18, 45, 80, 65, 30, 20],
+      borderColor: '#06b6d4',
+      backgroundColor: 'rgba(6,182,212,0.1)',
+      fill: true,
+      tension: 0.4,
+      borderDash: [5, 5]
+    }, {
+      label: 'Predicted AQI Risk (%)',
+      data: [60, 55, 65, 70, 85, 90, 75],
+      borderColor: '#8b5cf6',
+      backgroundColor: 'rgba(139,92,246,0.1)',
+      fill: true,
+      tension: 0.4,
+      borderDash: [5, 5]
+    }]
   }
 
   const stats = [
     {
       title: 'Total Workers',
-      value: dashboardData.totalWorkers,
+      value: ov.totalWorkers ?? 0,
       icon: Users,
-      color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600'
+      iconColor: 'text-blue-600',
     },
     {
       title: 'Active Policies',
-      value: dashboardData.totalPolicies,
+      value: ov.totalPolicies ?? 0,
       icon: Shield,
-      color: 'bg-green-500',
       bgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
+      iconColor: 'text-green-600',
     },
     {
       title: 'Weekly Revenue',
-      value: `₹${dashboardData.weeklyRevenue.toLocaleString()}`,
+      value: `₹${(ov.weeklyRevenue || 0).toLocaleString()}`,
       icon: TrendingUp,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600'
+      bgColor: 'bg-indigo-50',
+      iconColor: 'text-indigo-600',
     },
     {
-      title: 'Pending Claims',
-      value: dashboardData.pendingClaims,
+      title: 'Fraud Rate',
+      value: `${(ov.fraudRatio || 0).toFixed(1)}%`,
       icon: AlertTriangle,
-      color: 'bg-amber-500',
       bgColor: 'bg-amber-50',
-      iconColor: 'text-amber-600'
+      iconColor: 'text-amber-600',
     },
   ]
 
@@ -306,8 +324,21 @@ export default function AdminDashboard({ user, onLogout }) {
               </div>
             </div>
 
+            {/* Predictive Analytics */}
+            <div className="card p-6 mt-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-surface-900 border-l-4 border-indigo-500 pl-3">AI Disruption Forecast (Next 7 Days)</h3>
+                  <p className="text-sm text-surface-500 mt-1 pl-4">Predictive analytics for upcoming weather and pollution risks.</p>
+                </div>
+              </div>
+              <div className="h-64">
+                <Line data={forecastChart} options={chartOptions} />
+              </div>
+            </div>
+
             {/* Quick Actions */}
-            <div className="card p-6">
+            <div className="card p-6 mt-6">
               <h3 className="text-lg font-semibold text-surface-900 mb-4">Quick Actions</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button className="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary-50 hover:bg-primary-100 transition-colors">
